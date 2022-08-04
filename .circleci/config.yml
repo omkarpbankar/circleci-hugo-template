@@ -1,37 +1,26 @@
-version: 2.0
+# Use the latest 2.1 version of CircleCI pipeline process engine.
+# See: https://circleci.com/docs/2.0/configuration-reference
+version: 2.1
 
+# Define a job to be invoked later in a workflow.
+# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
-    build:
-        docker:
-            - image: circleci/node:6.10
-        working_directory: ~/circleci-hugo-template
-        steps:
-            - add_ssh_keys:
-                fingerprints:
-                    - "a8:d7:92:82:90:5f:d2:2b:53:f8:10:72:37:01:08:3c"
-            - checkout
-            - run:
-                name: Checkout submodules
-                command: git submodule sync && git submodule update --init
-            - run:
-                name: Install Hugo
-                command: wget https://github.com/gohugoio/hugo/releases/download/v0.29/hugo_0.29_Linux-64bit.deb -O /tmp/hugo.deb && sudo dpkg -i /tmp/hugo.deb
-            - restore_cache:
-                key: node-{{ checksum "package.json" }}
-            - run:
-                name: Install dependencies
-                command: npm install
-            - run:
-                name: Build site
-                command: ./scripts/build.sh
-            - run:
-                name: Install deployment dependencies
-                command: sudo apt install rsync
-            - save_cache:
-                key: node-{{ checksum "package.json" }}
-                paths:
-                    - node_modules
-            - deploy:
-                name: Deploy to Github Pages
-                command: ./.circleci/deploy.sh
+  say-hello:
+    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
+    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+    docker:
+      - image: cimg/base:stable
+    # Add steps to the job
+    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+    steps:
+      - checkout
+      - run:
+          name: "Say hello"
+          command: "echo Hello, World!"
 
+# Invoke jobs via workflows
+# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+workflows:
+  say-hello-workflow:
+    jobs:
+      - say-hello
